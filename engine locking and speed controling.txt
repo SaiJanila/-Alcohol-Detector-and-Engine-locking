@@ -1,0 +1,72 @@
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(12,11,5,4,3,2);
+#define sensor A0
+#define led 6
+#define buz 7
+int ENA = 10;
+int M_1 = 8;
+int M_2 = 9;
+void setup()
+{
+  pinMode(M_1,OUTPUT);
+  pinMode(M_2,OUTPUT);
+Serial.begin(9600);
+lcd.begin(16,2);
+lcd.print("Alcohol Detector");
+lcd.setCursor(0,1);
+lcd.print("team 6");
+delay(2000);
+pinMode(sensor,INPUT);
+pinMode(buz,OUTPUT);
+pinMode(led,OUTPUT);
+lcd.clear();
+}
+void loop()
+{
+float adcValue=0;
+for(int i=0;i<10;i++)
+{
+adcValue+=analogRead(sensor);
+delay(10);
+}
+float v =(adcValue/10) * (5.0/1024.0);
+float mgL= 0.67 * v;
+Serial.print("BAC: ");
+Serial.print(mgL);
+Serial.print(" mg/L");
+lcd.setCursor(0,0);
+lcd.print("BAC: ");
+lcd.print(mgL,4);
+lcd.print(" mg/L");
+lcd.setCursor(0,1);
+if(mgL < 0.3)
+{
+  lcd.print("Drunk");
+Serial.println("Drunk");
+digitalWrite(buz,HIGH);
+digitalWrite(led,HIGH);
+ digitalWrite(M_1, LOW);
+ digitalWrite(M_2, LOW);
+}
+else if(mgL > 0.3)
+ {
+  lcd.print("drive safe");
+  Serial.println("drive safe");
+digitalWrite(led,HIGH);
+analogWrite(ENA,225);
+digitalWrite(M_1, HIGH);
+digitalWrite(M_2, LOW);
+}
+  else
+{
+   lcd.print("Normal");
+Serial.println("Normal");
+digitalWrite(buz,LOW);
+digitalWrite(led,LOW);
+analogWrite(ENA,500);
+digitalWrite(M_1, HIGH);
+digitalWrite(M_2, LOW);
+
+}
+delay(100);
+}
